@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>apply · heavenly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Hachi+Maru+Pop&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #fdf6ff;
+      color: #4a3560;
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 55% 45% at 15% 15%, #ffd6f0 0%, transparent 65%),
+        radial-gradient(ellipse 50% 50% at 85% 20%, #ddd6ff 0%, transparent 65%),
+        radial-gradient(ellipse 55% 45% at 50% 90%, #d6eeff 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, #ffecd6 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      position: relative; z-index: 2;
+      width: 100%; padding: 14px 24px;
+      display: flex; align-items: center;
+      background: rgba(255,255,255,.6);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(200,180,230,.25);
+    }
+    .topbar-heart { font-size: 20px; color: #ffb8d4; margin-right: 6px; text-decoration: none; line-height: 1; }
+    .topbar-logo { font-size: 13px; font-weight: 700; color: #c9b4dc; text-decoration: none; letter-spacing: .06em; transition: color .15s; }
+    .topbar-logo:hover { color: #e8a0bc; }
+    .admin-btn {
+      margin-left: auto; font-size: 11px; font-weight: 700;
+      color: #c9b4dc; background: #fff;
+      border: 1.5px solid rgba(200,180,230,.4); border-radius: 50px;
+      padding: 5px 14px; cursor: pointer; font-family: 'Nunito', sans-serif;
+      letter-spacing: .04em; transition: all .15s;
+    }
+    .admin-btn:hover { border-color: #ffb8d4; color: #e8a0bc; }
+
+    /* CONTENT */
+    .content { position: relative; z-index: 1; width: 100%; max-width: 600px; padding: 0 20px 60px; }
+
+    /* PAGE HEADER */
+    .page-header { padding: 36px 0 28px; text-align: center; }
+    .page-header h1 {
+      font-family: 'Hachi Maru Pop', cursive;
+      font-size: clamp(1.4rem, 4.5vw, 2rem);
+      color: #4a3560; line-height: 1.3; margin-bottom: 14px;
+    }
+    .page-header h1 span { color: #e8a0bc; }
+    .page-header p { font-size: 13px; line-height: 1.8; color: #b89dc8; font-weight: 600; }
+
+    /* FORM */
+    .form-inner { display: flex; flex-direction: column; gap: 32px; }
+
+    /* SECTION */
+    .section-label { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .section-label-text {
+      font-size: 10px; font-weight: 800; letter-spacing: .18em;
+      text-transform: uppercase; color: #ffb8d4; white-space: nowrap;
+    }
+    .section-label-line { flex: 1; height: 1px; background: rgba(200,180,230,.3); }
+
+    .questions {
+      background: #fff; border: 1.5px solid rgba(200,180,230,.35);
+      border-radius: 18px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(180,150,220,.08);
+    }
+    .question { padding: 18px 20px; border-bottom: 1px solid rgba(200,180,230,.2); }
+    .question:last-child { border-bottom: none; }
+
+    .q-text {
+      font-size: 13.5px; font-weight: 700; color: #4a3560;
+      line-height: 1.5; margin-bottom: 10px; display: flex; gap: 8px;
+    }
+    .q-text .num { font-size: 10px; font-weight: 800; color: #ffb8d4; min-width: 20px; padding-top: 3px; flex-shrink: 0; }
+
+    /* INPUTS */
+    input[type="text"], textarea {
+      width: 100%; background: #f9f4ff;
+      border: 1.5px solid rgba(200,180,230,.35); border-radius: 12px;
+      padding: 10px 14px; font-family: 'Nunito', sans-serif;
+      font-size: 13.5px; color: #4a3560; outline: none; transition: border-color .15s;
+    }
+    input[type="text"]:focus, textarea:focus { border-color: #ffb8d4; }
+    input::placeholder, textarea::placeholder { color: #d5c4e8; }
+    textarea { resize: vertical; min-height: 110px; line-height: 1.65; }
+
+    /* RADIO */
+    .choices { display: flex; flex-direction: column; gap: 6px; }
+    .choice-label {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; background: #f9f4ff;
+      border: 1.5px solid rgba(200,180,230,.35); border-radius: 12px;
+      cursor: pointer; font-size: 13px; font-weight: 600; color: #b89dc8;
+      transition: all .15s; user-select: none;
+    }
+    .choice-label:hover { border-color: #ffb8d4; color: #4a3560; background: #fff5fa; }
+    .choice-label input[type="radio"] { display: none; }
+    .choice-label.selected { background: #fff0f6; border-color: #ffb8d4; color: #4a3560; }
+    .choice-indicator {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid rgba(200,180,230,.5);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all .15s;
+    }
+    .choice-label:hover .choice-indicator { border-color: #ffb8d4; }
+    .choice-label.selected .choice-indicator { border-color: #ffb8d4; background: #ffb8d4; }
+    .choice-label.selected .choice-indicator::after {
+      content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fff;
+    }
+
+    /* CHECKBOXES */
+    .agreement-box {
+      background: #fff; border: 1.5px solid rgba(200,180,230,.35);
+      border-radius: 18px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(180,150,220,.08);
+    }
+    .agreement-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px 20px; border-bottom: 1px solid rgba(200,180,230,.2);
+      cursor: pointer; transition: background .15s; user-select: none;
+    }
+    .agreement-item:last-child { border-bottom: none; }
+    .agreement-item:hover { background: #fff8fb; }
+    .agreement-item input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 18px; height: 18px; border-radius: 6px;
+      border: 2px solid rgba(200,180,230,.5);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px; transition: all .15s;
+    }
+    .agreement-item:hover .check-box { border-color: #ffb8d4; }
+    .agreement-item.checked .check-box { background: #ffb8d4; border-color: #ffb8d4; }
+    .agreement-item.checked .check-box::after { content: '✓'; font-size: 11px; font-weight: 900; color: #fff; line-height: 1; }
+    .agreement-text { font-size: 13px; line-height: 1.65; color: #b89dc8; font-weight: 600; }
+    .agreement-text strong { color: #4a3560; font-weight: 700; }
+    .agreement-item.checked .agreement-text { color: #4a3560; }
+
+    /* SUBMIT */
+    .submit-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .submit-btn {
+      width: 100%; padding: 13px;
+      background: #ffe4f0; color: #e8a0bc;
+      border: 1.5px solid #f5b8d0; border-radius: 50px;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+      cursor: pointer; letter-spacing: .03em;
+      transition: transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s;
+      box-shadow: 0 4px 16px rgba(255,180,210,.2);
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,180,210,.3); }
+    .success-msg {
+      display: none; text-align: center; padding: 14px 18px; color: #a0c8b0;
+      font-size: 13px; font-weight: 700; background: rgba(160,200,176,.1);
+      border: 1.5px solid rgba(160,200,176,.35); border-radius: 14px; line-height: 1.6;
+    }
+
+    /* FOOTER */
+    footer { position: relative; z-index: 1; margin-top: auto; padding: 20px 0 32px; font-size: .7rem; color: #d0bce0; font-weight: 600; letter-spacing: .08em; }
+    footer a { color: #d0bce0; text-decoration: none; transition: color .15s; }
+    footer a:hover { color: #e8a0bc; }
+
+    /* ADMIN FULL PAGE */
+    .admin-page {
+      display: none; position: fixed; inset: 0;
+      background: #fdf6ff; z-index: 100; overflow-y: auto;
+      flex-direction: column;
+    }
+    .admin-page::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 55% 45% at 15% 15%, #ffd6f0 0%, transparent 65%),
+        radial-gradient(ellipse 50% 50% at 85% 20%, #ddd6ff 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, #ffecd6 0%, transparent 65%);
+    }
+    .admin-page.open { display: flex; }
+    .admin-topbar {
+      position: relative; z-index: 2; display: flex; align-items: center;
+      padding: 14px 24px; background: rgba(255,255,255,.6);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(200,180,230,.25); flex-shrink: 0;
+    }
+    .admin-topbar-title { font-family: 'Hachi Maru Pop', cursive; font-size: .95rem; color: #4a3560; }
+    .admin-close {
+      margin-left: auto; background: none; border: 1.5px solid rgba(200,180,230,.4);
+      border-radius: 50px; font-size: 12px; font-weight: 700; color: #c9b4dc;
+      padding: 5px 14px; cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: all .15s;
+    }
+    .admin-close:hover { border-color: #ffb8d4; color: #e8a0bc; }
+    .admin-inner {
+      position: relative; z-index: 1; flex: 1;
+      width: 100%; max-width: 720px; margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    /* LOGIN */
+    .pw-row { display: flex; gap: 8px; margin-bottom: 6px; }
+    .pw-input {
+      flex: 1; border: 1.5px solid rgba(200,180,230,.35); border-radius: 12px;
+      padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 14px;
+      outline: none; background: #f9f4ff; color: #4a3560; transition: border-color .15s;
+    }
+    .pw-input:focus { border-color: #ffb8d4; }
+    .pw-input.err { border-color: #f5a0b0; }
+    .pw-input::placeholder { color: #d5c4e8; }
+    .pw-go {
+      padding: 10px 18px; background: #ffe4f0; color: #e8a0bc;
+      border: 1.5px solid #f5b8d0; border-radius: 12px;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .pw-err { font-size: 12px; color: #e8a0bc; display: none; margin-top: 4px; font-weight: 600; }
+
+    /* DASH */
+    .dash { display: none; }
+    .dash-stats { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .dash-stat {
+      font-size: 12px; font-weight: 700; padding: 5px 12px;
+      border-radius: 50px; background: #f9f4ff;
+      border: 1.5px solid rgba(200,180,230,.35); color: #b89dc8;
+    }
+    .dash-stat b { color: #e8a0bc; }
+
+    .tabs { display: flex; border-bottom: 1px solid rgba(200,180,230,.25); margin-bottom: 16px; }
+    .tab {
+      padding: 8px 14px; font-size: 11px; font-family: 'Nunito', sans-serif;
+      font-weight: 800; background: none; border: none; color: #c9b4dc;
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: all .15s; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .tab.active { color: #e8a0bc; border-bottom-color: #ffb8d4; }
+
+    .app-list { display: flex; flex-direction: column; gap: 8px; }
+    .app-list:empty::after {
+      content: 'nothing here yet ✿'; display: block; text-align: center;
+      color: #c9b4dc; font-size: 13px; padding: 28px 0; font-weight: 600;
+    }
+
+    .app-card {
+      background: #f9f4ff; border: 1.5px solid rgba(200,180,230,.35);
+      border-radius: 14px; overflow: hidden; transition: border-color .15s;
+    }
+    .app-card:hover { border-color: #ffb8d4; }
+    .app-card-hd { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; user-select: none; }
+    .app-card-hd:hover { background: rgba(255,180,210,.05); }
+    .app-name { font-size: 14px; font-weight: 700; color: #4a3560; flex: 1; }
+    .app-role {
+      font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 50px; background: #fff0f6; color: #e8a0bc; flex-shrink: 0;
+    }
+    .app-date { font-size: 11px; color: #c9b4dc; flex-shrink: 0; font-weight: 600; }
+    .app-chevron { font-size: 10px; color: #c9b4dc; transition: transform .2s; flex-shrink: 0; }
+    .app-card.open .app-chevron { transform: rotate(180deg); }
+    .app-body { display: none; padding: 14px; border-top: 1px solid rgba(200,180,230,.2); }
+    .app-card.open .app-body { display: block; }
+    .app-qa { margin-bottom: 12px; }
+    .app-q { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: #c9b4dc; margin-bottom: 3px; }
+    .app-a { font-size: 13px; line-height: 1.65; color: #4a3560; font-weight: 600; }
+
+    .app-actions { display: flex; gap: 7px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+    .act {
+      padding: 6px 14px; border-radius: 50px; border: 1.5px solid;
+      font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .act-accept  { color: #a0c8b0; border-color: rgba(160,200,176,.4); background: rgba(160,200,176,.1); }
+    .act-deny    { color: #e8a0bc; border-color: rgba(232,160,188,.4); background: rgba(232,160,188,.1); }
+    .act-archive { color: #c8b07e; border-color: rgba(200,176,126,.4); background: rgba(200,176,126,.1); }
+    .act-delete  { color: #c9b4dc; border-color: rgba(200,180,230,.35); background: transparent; margin-left: auto; }
+    .act:hover   { opacity: .7; }
+
+    .badge { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 50px; }
+    .badge-accepted { background: rgba(160,200,176,.15); color: #a0c8b0; }
+    .badge-denied   { background: rgba(232,160,188,.1);  color: #e8a0bc; }
+    .badge-archived { background: rgba(200,176,126,.12); color: #c8b07e; }
+
+    /* INTRO OVERLAY */
+    .intro-overlay {
+      position: fixed; inset: 0; background: #fdf6ff;
+      z-index: 200; display: flex; align-items: flex-start;
+      justify-content: center; padding: 24px; overflow-y: auto;
+      transition: opacity .5s ease;
+    }
+    .intro-overlay.fade-out { opacity: 0; pointer-events: none; }
+    .intro-overlay::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 55% 45% at 15% 15%, #ffd6f0 0%, transparent 65%),
+        radial-gradient(ellipse 50% 50% at 85% 20%, #ddd6ff 0%, transparent 65%),
+        radial-gradient(ellipse 50% 45% at 50% 90%, #d6eeff 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .intro-card {
+      position: relative; z-index: 1; margin: auto 0;
+      width: 100%; max-width: 500px;
+      background: #fff; border: 1.5px solid rgba(200,180,230,.35);
+      border-radius: 22px; overflow: hidden;
+      box-shadow: 0 8px 40px rgba(180,150,220,.15);
+    }
+    .intro-top { padding: 32px 32px 0; text-align: center; }
+    .intro-kicker {
+      font-size: 10px; font-weight: 800; letter-spacing: .2em;
+      text-transform: uppercase; color: #ffb8d4; margin-bottom: 14px;
+    }
+    .intro-title {
+      font-family: 'Hachi Maru Pop', cursive;
+      font-size: clamp(1.3rem, 4vw, 1.7rem); color: #4a3560; line-height: 1.3; margin-bottom: 6px;
+    }
+    .intro-title span { color: #e8a0bc; }
+    .intro-divider { width: 36px; height: 2px; background: rgba(255,184,212,.4); border-radius: 2px; margin: 16px auto; }
+    .intro-body { padding: 0 32px 24px; }
+    .intro-body p { font-size: 13.5px; line-height: 1.8; color: #b89dc8; font-weight: 600; margin-bottom: 12px; }
+    .intro-body p:last-of-type { margin-bottom: 0; }
+    .intro-body strong { color: #4a3560; font-weight: 700; }
+    .intro-footer {
+      padding: 18px 32px 26px; border-top: 1px solid rgba(200,180,230,.25);
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .intro-note { font-size: 11px; color: #c9b4dc; line-height: 1.5; font-weight: 600; }
+    .intro-continue {
+      flex-shrink: 0; padding: 10px 24px;
+      background: #ffe4f0; color: #e8a0bc;
+      border: 1.5px solid #f5b8d0; border-radius: 50px;
+      font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800;
+      cursor: pointer; transition: transform .18s, box-shadow .18s;
+      box-shadow: 0 4px 14px rgba(255,180,210,.2);
+    }
+    .intro-continue:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,180,210,.3); }
+    .upload-area {
+      width: 100%; padding: 18px; background: #f9f4ff;
+      border: 1.5px dashed rgba(200,180,230,.5); border-radius: 12px;
+      text-align: center; cursor: pointer; transition: all .15s;
+    }
+    .upload-area:hover { border-color: #ffb8d4; background: #fff5fa; }
+    .upload-icon { font-size: 1.4rem; margin-bottom: 4px; }
+    .upload-text { font-size: 12px; color: #c9b4dc; font-weight: 600; }
+    .upload-text strong { color: #e8a0bc; }
+    .upload-filename { font-size: 12px; color: #e8a0bc; font-weight: 700; margin-top: 6px; }
+    .rank-select {
+      width: 100%; background: #f9f4ff;
+      border: 1.5px solid rgba(200,180,230,.35); border-radius: 12px;
+      padding: 10px 14px; font-family: 'Nunito', sans-serif;
+      font-size: 13.5px; color: #4a3560; outline: none;
+      cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c9b4dc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+      transition: border-color .15s;
+    }
+    .rank-select:focus { border-color: #ffb8d4; }
+  </style>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIyIiBmaWxsPSIjMGYwZjEwIi8+CiAgPHRleHQgeD0iNTAiIHk9Ijc2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjcyIiBmaWxsPSIjZDRhOGM3IiBmb250LWZhbWlseT0ic2VyaWYiPuKZoTwvdGV4dD4KPC9zdmc+" />
+</head>
+<body>
+
+  <!-- INTRO SPLASH -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-card">
+      <div class="intro-top">
+        <div class="intro-kicker">before you apply</div>
+        <h2 class="intro-title">who am I<br><span>looking for?</span></h2>
+        <div class="intro-divider"></div>
+      </div>
+      <div class="intro-body">
+        <p>I am looking for someone <strong>18 or older</strong> who is kind, relatable, and genuinely fun to be around. You know how to read the room   you can make the whole space laugh, keep things light, and still know when to dial it back and be appropriate.</p>
+        <p>You carry yourself well, you are <strong>not afraid to troll</strong>, and you bring real energy without it ever getting out of hand. Whether it is on YouTube or a live stream, you just <em>fit</em>.</p>
+        <p>If that sounds like you, I want to hear from you.</p>
+      </div>
+      <div class="intro-footer">
+        <span class="intro-note">Takes approx. 5 min to complete</span>
+        <button class="intro-continue" onclick="dismissIntro()">Continue to Application</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <a class="topbar-logo" href="https://heavenly.gg">heavenly.gg</a>
+    <button class="admin-btn" onclick="openAdmin()">admin</button>
+  </div>
+
+  <div class="content">
+
+    <div class="page-header">
+      <h1>Channel &amp; Stream<br><span>Application</span></h1>
+      <p>Fill this out if you want to be on the YouTube channel or stream. Keep it real, show your personality, and I'll get back to you within a few days.</p>
+    </div>
+
+    <div class="form-inner" id="appForm">
+      <!-- Section 1: Basic Info -->
+      <div>
+        <div class="section-label">
+          <span class="section-label-text">Section 1: About You</span>
+          <span class="section-label-line"></span>
+        </div>
+        <div class="questions">
+          <div class="question">
+            <div class="q-text"><span class="num">01</span>What name do you go by?</div>
+            <input type="text" id="q1" placeholder="Your name or nickname…" />
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">02</span>How old are you?</div>
+            <input type="text" id="qAge" placeholder="e.g. 19" />
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">03</span>What are your pronouns?</div>
+            <input type="text" id="qPronoun" placeholder="e.g. she/her, he/him, they/them…" />
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">04</span>What's your Discord?</div>
+            <input type="text" id="qDiscord" placeholder="e.g. heavenly" />
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">05</span>Are you applying for YouTube, stream, or both?</div>
+            <div class="choices" id="q3">
+              <label class="choice-label" onclick="selectChoice(this,'q3')"><input type="radio" name="q3" value="YouTube" /><span class="choice-indicator"></span>YouTube</label>
+              <label class="choice-label" onclick="selectChoice(this,'q3')"><input type="radio" name="q3" value="Stream" /><span class="choice-indicator"></span>Stream</label>
+              <label class="choice-label" onclick="selectChoice(this,'q3')"><input type="radio" name="q3" value="Both" /><span class="choice-indicator"></span>Both</label>
+            </div>
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">06</span>What's your Riot ID?</div>
+            <input type="text" id="qRiotId" placeholder="e.g. heavenly#0000" />
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">07</span>What rank are you in Valorant?</div>
+            <select id="qRankTier" onchange="handleRankChange()" class="rank-select">
+              <option value="">Select rank…</option>
+              <option>Iron</option><option>Bronze</option><option>Silver</option>
+              <option>Gold</option><option>Platinum</option><option>Diamond</option>
+              <option>Ascendant</option><option>Immortal</option><option>Radiant</option>
+            </select>
+            <div id="qSubRank" style="display:none;margin-top:10px;">
+              <select id="qSubRankVal" class="rank-select">
+                <option value="">Select division…</option>
+                <option>1</option><option>2</option><option>3</option>
+              </select>
+            </div>
+            <input type="hidden" id="qRankVal" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Character -->
+      <div>
+        <div class="section-label">
+          <span class="section-label-text">Section 2: Your Character</span>
+          <span class="section-label-line"></span>
+        </div>
+        <div class="questions">
+          <div class="question">
+            <div class="q-text"><span class="num">08</span>How would your friends describe you in three words?</div>
+            <input type="text" id="q5" placeholder="e.g. funny, chaotic, loyal…" />
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">09</span>What makes you funny? Give an example of something you've done or said that had everyone laughing.</div>
+            <textarea id="q6" placeholder="Share your thoughts…"></textarea>
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">10</span>Can you be appropriate and keep it together when it matters, or do you go full chaos 24/7?</div>
+            <textarea id="q7" placeholder="Be honest…"></textarea>
+          </div>
+          <div class="question">
+            <div class="q-text"><span class="num">11</span>Why do you want to be on heavenly's channel or stream?</div>
+            <textarea id="q8" placeholder="Be real with it…" style="min-height:130px;"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Clips Upload -->
+      <div>
+        <div class="section-label">
+          <span class="section-label-text">Section 3: Show Me Something Funny</span>
+          <span class="section-label-line"></span>
+        </div>
+        <div class="questions">
+          <div class="question">
+            <div class="q-text"><span class="num">12</span>Got a funny clip? Upload one or drop a link   game clip, video, TikTok, anything. (optional but highly encouraged)</div>
+            <div class="upload-area" onclick="document.getElementById('clipInput').click()" style="margin-top:4px;">
+              <input type="file" id="clipInput" accept="video/*,image/*" style="display:none" onchange="clipSelected(this)" />
+              <div class="upload-icon">🎬</div>
+              <div class="upload-text"><strong>tap to upload</strong> a clip or screenshot</div>
+              <div class="upload-filename" id="clipName" style="display:none;"></div>
+            </div>
+            <input type="text" id="qLink" placeholder="or paste a link… (https://…)" style="margin-top:10px;" />
+          </div>
+        </div>
+      </div>
+
+            <div class="submit-wrap">
+        <button class="submit-btn" onclick="submitApp()">Submit Application</button>
+        <div class="success-msg" id="successMsg">✿ Application submitted, thank you! We'll be in touch within 1 7 business days.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>heavenly.gg</footer>
+
+  <!-- ADMIN FULL PAGE -->
+  <div class="admin-page" id="adminModal">
+    <div class="admin-topbar">
+      <span class="admin-topbar-title">applications admin</span>
+      <button class="admin-close" onclick="closeAdmin()">✕ close</button>
+    </div>
+    <div class="admin-inner">
+
+      <div id="loginView">
+        <div style="max-width:380px;margin:60px auto 0;background:#fff;border:1.5px solid rgba(200,180,230,.35);border-radius:18px;padding:28px;box-shadow:0 2px 12px rgba(180,150,220,.08);">
+          <div style="font-family:'Hachi Maru Pop',cursive;font-size:1.1rem;color:#4a3560;margin-bottom:16px;text-align:center;">enter password</div>
+          <div class="pw-row">
+            <input type="password" class="pw-input" id="pw" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()" />
+            <button class="pw-go" onclick="checkPw()">Unlock</button>
+          </div>
+          <div class="pw-err" id="pwErr">Incorrect password</div>
+        </div>
+      </div>
+
+      <div class="dash" id="dashView">
+        <div class="dash-stats">
+          <div class="dash-stat"><b id="pendingCount">0</b> pending</div>
+          <div class="dash-stat"><b id="acceptedCount">0</b> accepted</div>
+          <div class="dash-stat"><b id="deniedCount">0</b> denied</div>
+          <div class="dash-stat"><b id="totalCount">0</b> total</div>
+        </div>
+        <div class="tabs">
+          <button class="tab active" data-tab="pending"  onclick="setTab(this)">Pending</button>
+          <button class="tab"        data-tab="accepted" onclick="setTab(this)">Accepted</button>
+          <button class="tab"        data-tab="denied"   onclick="setTab(this)">Denied</button>
+          <button class="tab"        data-tab="archived" onclick="setTab(this)">Archived</button>
+        </div>
+        <div class="app-list" id="appList"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const PASS = 'Loving21!';
+    const STORE_KEY = 'omiku_applications';
+    const QUESTIONS = [
+      'What name do you go by?',
+      'How old are you?',
+      'What are your pronouns?',
+      'Discord',
+      'Applying for YouTube, stream, or both?',
+      'Riot ID',
+      'Valorant rank',
+      'How would your friends describe you in three words?',
+      'What makes you funny?',
+      'Can you be appropriate when it matters?',
+      'Why do you want to be on the channel or stream?',
+      'Clip / link (optional)',
+    ];
+
+    let apps = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+    let currentTab = 'pending';
+    function save() { localStorage.setItem(STORE_KEY, JSON.stringify(apps)); }
+
+    function selectChoice(el, group) {
+      document.querySelectorAll(`#${group} .choice-label`).forEach(l => l.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+    }
+
+    function toggleAgree(label) {
+      const cb = label.querySelector('input[type="checkbox"]');
+      cb.checked = !cb.checked;
+      label.classList.toggle('checked', cb.checked);
+    }
+
+    function handleRankChange() {
+      const tier = document.getElementById('qRankTier').value;
+      const sub = document.getElementById('qSubRank');
+      document.getElementById('qSubRankVal').value = '';
+      if (tier === 'Radiant') { sub.style.display = 'none'; }
+      else if (tier) { sub.style.display = 'block'; }
+      else { sub.style.display = 'none'; }
+    }
+
+    function clipSelected(input) {
+      if (input.files && input.files[0]) {
+        const fn = document.getElementById('clipName');
+        fn.textContent = '✓ ' + input.files[0].name;
+        fn.style.display = 'block';
+      }
+    }
+
+    function submitApp() {
+      // Collect all answers in order matching QUESTIONS array
+      const answers = [
+        document.getElementById('q1').value.trim(),
+        document.getElementById('qAge').value.trim(),
+        document.getElementById('qPronoun').value.trim(),
+        document.getElementById('qDiscord').value.trim(),
+        (document.querySelector('input[name="q3"]:checked')||{}).value||'',
+        document.getElementById('qRiotId').value.trim(),
+        (document.getElementById('qRankTier').value === 'Radiant' ? 'Radiant' : document.getElementById('qRankTier').value + ' ' + (document.getElementById('qSubRankVal').value||'')).trim(),
+        document.getElementById('q5').value.trim(),
+        document.getElementById('q6').value.trim(),
+        document.getElementById('q7').value.trim(),
+        document.getElementById('q8').value.trim(),
+        document.getElementById('qLink').value.trim(),
+      ];
+
+      if (!answers[0]) { alert('Please enter your name.'); document.getElementById('q1').focus(); return; }
+      if (!answers[1]) { alert('Please enter your age.'); document.getElementById('qAge').focus(); return; }
+      if (!answers[2]) { alert('Please enter your pronouns.'); document.getElementById('qPronoun').focus(); return; }
+      if (!answers[3]) { alert('Please enter your Discord.'); document.getElementById('qDiscord').focus(); return; }
+      if (!answers[4]) { alert('Please select YouTube, stream, or both.'); return; }
+      if (!answers[5]) { alert('Please enter your Riot ID.'); document.getElementById('qRiotId').focus(); return; }
+      if (!document.getElementById('qRankTier').value) { alert('Please select your Valorant rank.'); return; }
+      if (document.getElementById('qRankTier').value !== 'Radiant' && !document.getElementById('qSubRankVal').value) { alert('Please select your rank division (1, 2, or 3).'); return; }
+      if (!answers[7]) { alert('Please answer question 8.'); document.getElementById('q5').focus(); return; }
+      if (!answers[8]) { alert('Please answer question 9.'); document.getElementById('q6').focus(); return; }
+      if (!answers[9]) { alert('Please answer question 10.'); document.getElementById('q7').focus(); return; }
+      if (!answers[10]) { alert('Please answer question 11.'); document.getElementById('q8').focus(); return; }
+
+      if (!document.getElementById('cb1').checked) {
+        alert('Please check the Recording & Publication Consent box.');
+        document.getElementById('agree1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (!document.getElementById('cb2').checked) {
+        alert('Please check the Conduct Agreement box.');
+        document.getElementById('agree2').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      apps.push({ id: Date.now(), name: answers[0], role: answers[3],
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        status: 'pending', answers });
+      save();
+
+      ['q1','qAge','qPronoun','qDiscord','qRiotId','q5','q6','q7','q8','qLink'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+      document.querySelectorAll('.choice-label').forEach(l => l.classList.remove('selected'));
+      document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+      ['cb1','cb2'].forEach(id => { document.getElementById(id).checked = false; });
+      document.querySelectorAll('.agreement-item').forEach(l => l.classList.remove('checked'));
+      document.getElementById('clipName').style.display = 'none';
+      document.getElementById('qSubRank').style.display = 'none';
+      document.getElementById('qRankTier').value = '';
+      document.getElementById('qSubRankVal').value = '';
+
+      const msg = document.getElementById('successMsg');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 6000);
+    }
+
+    function openAdmin() {
+      apps = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+      document.getElementById('adminModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('pw').focus(), 100);
+    }
+    function closeAdmin() {
+      document.getElementById('adminModal').classList.remove('open');
+      document.body.style.overflow = '';
+      document.getElementById('loginView').style.display = 'block';
+      document.getElementById('dashView').style.display = 'none';
+      document.getElementById('pw').value = '';
+    }
+
+    function checkPw() {
+      const input = document.getElementById('pw');
+      if (input.value === PASS) {
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('dashView').style.display = 'block';
+        currentTab = 'pending';
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'pending'));
+        renderDash();
+      } else {
+        input.classList.add('err');
+        document.getElementById('pwErr').style.display = 'block';
+        setTimeout(() => { input.classList.remove('err'); document.getElementById('pwErr').style.display = 'none'; }, 2000);
+      }
+    }
+
+    function setTab(btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      currentTab = btn.dataset.tab;
+      renderDash();
+    }
+
+    function renderDash() {
+      const pending  = apps.filter(a => a.status === 'pending');
+      const accepted = apps.filter(a => a.status === 'accepted');
+      const denied   = apps.filter(a => a.status === 'denied');
+      const filtered = apps.filter(a => a.status === currentTab);
+      document.getElementById('pendingCount').textContent  = pending.length;
+      document.getElementById('acceptedCount').textContent = accepted.length;
+      document.getElementById('deniedCount').textContent   = denied.length;
+      document.getElementById('totalCount').textContent    = apps.length;
+      const list = document.getElementById('appList');
+      if (!filtered.length) {
+        list.innerHTML = '<div style="text-align:center;padding:28px 0;color:#c9b4dc;font-size:13px;font-weight:600;">nothing here yet ✿</div>';
+        return;
+      }
+      list.innerHTML = filtered.slice().reverse().map(a => {
+        const qaHtml = QUESTIONS.map((q, i) => `<div class="app-qa"><div class="app-q">${i+1}. ${q}</div><div class="app-a">${esc(a.answers[i]||'—')}</div></div>`).join('');
+        const actions = [];
+        if (a.status !== 'accepted') actions.push(`<button class="act act-accept" onclick="setStatus(${a.id},'accepted')">✓ Accept</button>`);
+        if (a.status !== 'denied')   actions.push(`<button class="act act-deny"   onclick="setStatus(${a.id},'denied')">✕ Deny</button>`);
+        if (a.status !== 'archived') actions.push(`<button class="act act-archive" onclick="setStatus(${a.id},'archived')">Archive</button>`);
+        actions.push(`<button class="act act-delete" onclick="deleteApp(${a.id})">Delete</button>`);
+        return `<div class="app-card" id="app-${a.id}">
+          <div class="app-card-hd" onclick="toggleApp(${a.id})">
+            <span class="app-name">${esc(a.name)}</span>
+            <span class="app-role">${esc(a.role||'')}</span>
+            <span class="app-date">${a.date}</span>
+            <span class="app-chevron">▼</span>
+          </div>
+          <div class="app-body">${qaHtml}<div class="app-actions">${actions.join('')}</div></div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleApp(id) { document.getElementById('app-'+id).classList.toggle('open'); }
+    function setStatus(id, status) {
+      apps = apps.map(a => a.id === id ? {...a, status} : a);
+      save();
+      renderDash();
+    }
+    function deleteApp(id) {
+      if (!confirm('Delete this application? This cannot be undone.')) return;
+      apps = apps.filter(a => a.id !== id);
+      save();
+      renderDash();
+    }
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+
+    function dismissIntro() {
+      const overlay = document.getElementById('introOverlay');
+      overlay.classList.add('fade-out');
+      setTimeout(() => overlay.style.display = 'none', 500);
+    }
+  </script>
+</body>
+</html>

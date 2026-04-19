@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>donate — heavenly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Hachi+Maru+Pop&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;font-family:'Nunito',sans-serif;background:#fdf6ff;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px;position:relative;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 55% 45% at 15% 15%,#ffd6f0 0%,transparent 65%),radial-gradient(ellipse 50% 50% at 85% 20%,#ddd6ff 0%,transparent 65%),radial-gradient(ellipse 55% 45% at 50% 90%,#d6eeff 0%,transparent 65%),radial-gradient(ellipse 40% 40% at 80% 80%,#ffecd6 0%,transparent 65%);pointer-events:none;z-index:0;}
+
+    .hbg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+    .hf{position:absolute;opacity:0;animation:fu 10s ease-in infinite;color:rgba(255,180,210,0.45);}
+    @keyframes fu{0%{opacity:0;transform:translateY(0)}10%{opacity:.35}85%{opacity:.15}100%{opacity:0;transform:translateY(-100vh)}}
+
+    .content{position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;}
+
+    /* hero */
+    .hero{text-align:center;padding:0 0 24px;display:flex;flex-direction:column;align-items:center;}
+    .pfp{width:90px;height:90px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 6px 24px rgba(200,150,220,.22);margin-bottom:8px;}
+    .hero h1{font-family:'Hachi Maru Pop',cursive;font-size:1.5rem;color:#4a3560;margin-bottom:4px;}
+    .hero p{font-size:12px;color:#ffb8d4;font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
+
+    /* steps */
+    .step{width:100%;display:none;}
+    .step.active{display:block;}
+
+    /* cards */
+    .scard{width:100%;background:#fff;border:1.5px solid rgba(200,180,230,.35);border-radius:18px;padding:20px;margin-bottom:10px;box-shadow:0 2px 12px rgba(180,150,220,.08);}
+    .slabel{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#ffb8d4;margin-bottom:14px;}
+
+    /* amount */
+    .amount-wrap{position:relative;display:flex;align-items:center;flex-direction:column;}
+    .amount-row{position:relative;display:flex;align-items:center;width:100%;}
+    .amount-prefix{position:absolute;left:12px;font-size:18px;font-weight:800;color:#c9b4dc;}
+    .amount-input{width:100%;padding:11px 11px 11px 28px;background:#f9f4ff;border:1.5px solid rgba(200,180,230,.4);border-radius:12px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;color:#4a3560;outline:none;transition:border-color .15s;-moz-appearance:textfield;}
+    .amount-input::-webkit-inner-spin-button,.amount-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+    .amount-input:focus{border-color:#ffb8d4;}
+    .amount-input::placeholder{color:#d5c4e8;}
+    #amountHint{font-size:11px;color:#e8a0bc;font-weight:600;margin-top:6px;align-self:flex-start;}
+
+    /* methods */
+    .method-grid{display:flex;flex-direction:column;gap:8px;}
+    .method-btn{display:flex;flex-direction:row;align-items:center;gap:12px;padding:11px 14px;background:#fff;border:1.5px solid rgba(200,180,230,.35);border-radius:14px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;text-align:left;box-shadow:0 2px 8px rgba(180,150,220,.07);}
+    .method-btn:hover{border-color:#ffb8d4;background:#fff8fb;box-shadow:0 4px 16px rgba(255,180,210,.15);}
+    .method-btn.selected{border-color:#ffb8d4;background:#fff0f6;}
+    .method-logo-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+    .method-name{font-size:13px;font-weight:700;color:#4a3560;}
+
+    /* buttons */
+    .continue-btn{width:100%;padding:13px;background:#ffe4f0;color:#e8a0bc;border:none;border-radius:50px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;margin-top:12px;transition:transform .18s cubic-bezier(.22,1,.36,1),box-shadow .18s;box-shadow:0 4px 0px #f5b8d0,0 6px 16px rgba(255,180,210,.25);}
+    .continue-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0px #f5b8d0,0 10px 24px rgba(255,180,210,.3);}
+    .continue-btn:active{transform:translateY(2px);box-shadow:0 2px 0px #f5b8d0;}
+    .continue-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+
+    /* address */
+    .addr-box{background:#f9f4ff;border:1.5px solid rgba(200,180,230,.35);border-radius:12px;padding:12px 14px;margin-bottom:12px;}
+    .addr-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c9b4dc;margin-bottom:6px;}
+    .addr-val{font-size:12px;font-weight:700;color:#4a3560;word-break:break-all;line-height:1.65;}
+    .addr-tag{font-size:22px;font-weight:900;color:#4a3560;}
+    .copy-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px;background:transparent;color:#e8a0bc;border:1.5px solid rgba(255,184,212,.4);border-radius:9px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:8px;}
+    .copy-btn:hover{background:#fff0f6;border-color:#ffb8d4;}
+    .copy-btn.copied{color:#a0c8b0;border-color:rgba(160,200,176,.5);background:rgba(160,200,176,.1);}
+
+    /* fields */
+    .field-label{font-size:12px;font-weight:700;color:#c9b4dc;margin-bottom:8px;display:block;}
+    .txid-input{width:100%;padding:11px 14px;background:#f9f4ff;border:1.5px solid rgba(200,180,230,.35);border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;color:#4a3560;outline:none;transition:border-color .15s;margin-bottom:12px;}
+    .txid-input:focus{border-color:#ffb8d4;}
+    .txid-input::placeholder{color:#d5c4e8;}
+
+    .upload-area{width:100%;padding:18px;background:#f9f4ff;border:1.5px dashed rgba(200,180,230,.5);border-radius:12px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:12px;position:relative;}
+    .upload-area:hover{border-color:#ffb8d4;background:#fff5fa;}
+    .upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .upload-icon{font-size:1.4rem;margin-bottom:4px;}
+    .upload-text{font-size:12px;color:#c9b4dc;font-weight:600;}
+    .upload-text strong{color:#e8a0bc;}
+    .upload-filename{font-size:12px;color:#e8a0bc;font-weight:700;margin-top:4px;}
+
+    .back-btn{background:none;border:none;color:#c9b4dc;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;padding:0 0 14px;display:flex;align-items:center;gap:5px;transition:color .15s;}
+    .back-btn:hover{color:#e8a0bc;}
+
+    /* thank you */
+    .ty-screen{text-align:center;padding:16px 0;}
+    .ty-title{font-family:'Hachi Maru Pop',cursive;font-size:1.5rem;color:#4a3560;margin-bottom:12px;}
+    .ty-msg{font-size:13px;color:#c9b4dc;line-height:1.8;margin-bottom:20px;font-weight:600;}
+
+    footer{position:relative;z-index:1;margin-top:24px;font-size:.7rem;color:#d0bce0;font-weight:600;letter-spacing:.08em;}
+  </style>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIyIiBmaWxsPSIjZmRmNmZmIi8+CiAgPHRleHQgeD0iNTAiIHk9Ijc2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjcyIiBmaWxsPSIjZmZiOGQ0IiBmb250LWZhbWlseT0ic2VyaWYiPuKZoTwvdGV4dD4KPC9zdmc+" />
+</head>
+<body>
+<div class="hbg" id="hbg"></div>
+
+<div class="content">
+  <div class="hero">
+    <h1>donate to heavenly</h1>
+    <p>every dollar is appreciated :3</p>
+  </div>
+
+  <div class="step active" id="step1">
+    <div class="scard">
+      <div class="slabel">how much would you like to donate?</div>
+      <div class="amount-wrap">
+        <div class="amount-row">
+          <span class="amount-prefix">$</span>
+          <input class="amount-input" id="amountInput" type="number" min="1" step="0.01" placeholder="1.00" oninput="checkStep1()"/>
+        </div>
+        <div id="amountHint" style="display:none;">minimum donation is $1.00</div>
+      </div>
+    </div>
+    <div class="scard">
+      <div class="slabel">choose a donation method</div>
+      <div class="method-grid">
+
+        <button class="method-btn" onclick="selectMethod('cash',this)">
+          <div class="method-logo-wrap" style="background:transparent;">
+            <img style="width:36px;height:36px;" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2Ij48cGF0aCBkPSJNMjMuNTkgMy40NzVhNS4xIDUuMSAwIDAwLTMuMDUtMy4wNWMtMS4zMS0uNDItMi41LS40Mi00LjkyLS40Mkg4LjM2Yy0yLjQgMC0zLjYxIDAtNC45LjRhNS4xIDUuMSAwIDAwLTMuMDUgMy4wNkMwIDQuNzY1IDAgNS45NjUgMCA4LjM2NXY3LjI3YzAgMi40MSAwIDMuNi40IDQuOWE1LjEgNS4xIDAgMDAzLjA1IDMuMDVjMS4zLjQxIDIuNS40MSA0LjkuNDFoNy4yOGMyLjQxIDAgMy42MSAwIDQuOS0uNGE1LjEgNS4xIDAgMDAzLjA2LTMuMDZjLjQxLTEuMy40MS0yLjUuNDEtNC45di03LjI1YzAtMi40MSAwLTMuNjEtLjQxLTQuOTF6bS02LjE3IDQuNjNsLS45My45M2EuNS41IDAgMDEtLjY3LjAxIDUgNSAwIDAwLTMuMjItMS4xOGMtLjk3IDAtMS45NC4zMi0xLjk0IDEuMjEgMCAuOSAxLjA0IDEuMiAyLjI0IDEuNjUgMi4xLjcgMy44NCAxLjU4IDMuODQgMy42NCAwIDIuMjQtMS43NCAzLjc4LTQuNTggMy45NWwtLjI2IDEuMmEuNDkuNDkgMCAwMS0uNDguMzlIOS42M2wtLjA5LS4wMWEuNS41IDAgMDEtLjM4LS41OWwuMjgtMS4yN2E2LjU0IDYuNTQgMCAwMS0yLjg4LTEuNTd2LS4wMWEuNDguNDggMCAwMTAtLjY4bDEtLjk3YS40OS40OSAwIDAxLjY3IDBjLjkxLjg2IDIuMTMgMS4zNCAzLjM5IDEuMzIgMS4zIDAgMi4xNy0uNTUgMi4xNy0xLjQyIDAtLjg3LS44OC0xLjEtMi41NC0xLjcyLTEuNzYtLjYzLTMuNDMtMS41Mi0zLjQzLTMuNiAwLTIuNDIgMi4wMS0zLjYgNC4zOS0zLjcxbC4yNS0xLjIzYS40OC40OCAwIDAxLjQ4LS4zOGgxLjc4bC4xLjAxYy4yNi4wNi40My4zMS4zNy41N2wtLjI3IDEuMzdjLjkuMyAxLjc1Ljc3IDIuNDggMS4zOWwuMDIuMDJjLjE5LjIuMTkuNSAwIC42OHoiIGZpbGw9IiMwMEMyNDQiLz48L3N2Zz4="/>
+          </div>
+          <span class="method-name">CashApp</span>
+        </button>
+
+        <button class="method-btn" onclick="selectMethod('card',this)">
+          <div class="method-logo-wrap" style="background:#635bff;">
+            <svg width="36" height="36" viewBox="0 0 48 48" fill="none"><rect x="7" y="13" width="34" height="22" rx="4" fill="white" opacity=".95"/><rect x="7" y="20" width="34" height="6" fill="#635bff"/><rect x="12" y="29" width="8" height="3" rx="1.5" fill="#635bff"/><rect x="23" y="29" width="5" height="3" rx="1.5" fill="#635bff"/></svg>
+          </div>
+          <span class="method-name">Card / Bank</span>
+        </button>
+
+        <button class="method-btn" onclick="selectMethod('btc',this)">
+          <div class="method-logo-wrap" style="background:#f7931a;border-radius:10px;">
+            <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><path d="M22.1 13.8c.3-2-1.2-3.1-3.3-3.8l.7-2.7-1.7-.4-.7 2.6c-.4-.1-.9-.2-1.4-.3l.7-2.7-1.7-.4-.7 2.7c-.4-.1-.7-.2-1-.2l-2.3-.6-.4 1.8s1.2.3 1.2.3c.7.2.8.7.8 1l-1.9 7.6c-.1.3-.4.8-1.1.6 0 0-1.2-.3-1.2-.3l-.9 2 2.2.5c.4.1.8.2 1.2.3l-.7 2.8 1.7.4.7-2.7c.5.1 1 .3 1.4.4l-.7 2.7 1.7.4.7-2.8c3 .6 5.2.3 6.1-2.4.8-2.1-.04-3.3-1.6-4.1 1.1-.3 2-.9 2.2-2.2zm-3.9 5.5c-.5 2.2-4.2 1-5.4.7l1-3.8c1.2.3 5 .9 4.4 3.1zm.6-5.5c-.5 2-3.7 1-4.7.7l.9-3.5c1 .3 4.4.7 3.8 2.8z" fill="white"/></svg>
+          </div>
+          <span class="method-name">Bitcoin</span>
+        </button>
+
+        <button class="method-btn" onclick="selectMethod('eth',this)">
+          <div class="method-logo-wrap" style="background:#454a75;">
+            <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><polygon points="16,3 16,12.8 23.5,16.2" fill="rgba(255,255,255,0.6)"/><polygon points="16,3 8.5,16.2 16,12.8" fill="white"/><polygon points="16,12.8 23.5,16.2 16,20.5" fill="rgba(255,255,255,0.45)"/><polygon points="8.5,16.2 16,20.5 16,12.8" fill="rgba(255,255,255,0.8)"/><polygon points="16,20.5 23.5,17.8 16,29" fill="rgba(255,255,255,0.45)"/><polygon points="8.5,17.8 16,20.5 16,29" fill="rgba(255,255,255,0.8)"/></svg>
+          </div>
+          <span class="method-name">Ethereum</span>
+        </button>
+
+        <button class="method-btn" onclick="selectMethod('ltc',this)">
+          <div class="method-logo-wrap" style="background:#bebebe;">
+            <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><path d="M16 3C9 3 3 9 3 16s6 13 13 13 13-6 13-13S23 3 16 3z" fill="#bebebe"/><path d="M11.5 22.5l1.2-4.8-1.6.5.5-1.9 1.6-.5 2.3-8.8h3.8l-1.8 6.9 1.6-.5-.5 1.9-1.6.5-1 3.7h7.5l-.7 2.7H11.5z" fill="white"/></svg>
+          </div>
+          <span class="method-name">Litecoin</span>
+        </button>
+
+      </div>
+      <button class="continue-btn" id="step1Btn" disabled onclick="goStep2()">continue</button>
+    </div>
+  </div>
+
+  <div class="step" id="step2">
+    <button class="back-btn" onclick="goBack(1)">← back</button>
+    <div class="scard">
+      <div class="slabel" id="step2Label">send payment</div>
+      <div id="step2Address"></div>
+      <div id="txidWrap">
+        <label class="field-label">transaction ID (TXID)</label>
+        <input class="txid-input" id="txidInput" placeholder="paste your transaction ID here…" oninput="checkStep2()"/>
+      </div>
+      <div id="uploadWrap">
+        <label class="field-label">screenshot of transaction</label>
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+          <input type="file" id="fileInput" accept="image/*" onchange="fileSelected(this)" style="display:none"/>
+          <div class="upload-icon">📎</div>
+          <div class="upload-text"><strong>tap to upload</strong> a screenshot</div>
+          <div class="upload-filename" id="fileName" style="display:none;"></div>
+        </div>
+      </div>
+      <button class="continue-btn" id="step2Btn" disabled onclick="goStep3()">done ♡</button>
+    </div>
+  </div>
+
+  <div class="step" id="step3">
+    <div class="scard">
+      <div class="ty-screen">
+        <div class="ty-title">thank you so much &gt;.&lt;</div>
+        <p class="ty-msg">your donation means everything. seriously, thank you for supporting the stream. see you in chat! ♡</p>
+        <button class="continue-btn" onclick="restart()">donate again</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>heavenly.gg</footer>
+
+<script>
+  const hbgEl = document.getElementById('hbg');
+  ['♡','·','✦'].forEach(s=>{
+    for(let i=0;i<5;i++){
+      const el=document.createElement('div');
+      el.className='hf'; el.textContent=s;
+      el.style.cssText=`left:${Math.random()*100}vw;bottom:-20px;font-size:${.5+Math.random()*.65}rem;animation-delay:${Math.random()*14}s;animation-duration:${8+Math.random()*6}s`;
+      hbgEl.appendChild(el);
+    }
+  });
+
+  // floating symbols
+  const hbg = document.getElementById('hbg');
+  ['♡','·','♡','✦'].forEach(s=>{
+    for(let i=0;i<4;i++){
+      const el=document.createElement('div');
+      el.className='hf'; el.textContent=s;
+      el.style.cssText=`left:${Math.random()*100}vw;bottom:-20px;font-size:${.5+Math.random()*.65}rem;animation-delay:${Math.random()*14}s;animation-duration:${8+Math.random()*6}s`;
+      hbgEl.appendChild(el);
+    }
+  });
+
+  const methods = {
+    cash: { name:'CashApp', label:'CashApp $cashtag', val:'$htqa', isTag:true, txLabel:'CashApp transaction reference / note' },
+    btc:  { name:'Bitcoin', label:'BTC Wallet Address', val:'bc1qeqgsckrgg9xytf6f02z7anpy8khl7lfp4yy7d3', isTag:false, txLabel:'Transaction ID (TXID)' },
+    eth:  { name:'Ethereum', label:'ETH Wallet Address', val:'0xa94933309fEB1Ec1D392FecaE1C4EE6622b08a78', isTag:false, txLabel:'Transaction Hash (TXID)' },
+    ltc:  { name:'Litecoin', label:'LTC Wallet Address', val:'LdTtC1GtoiBguQcMPf7Fu7jpwKYHEqyENh', isTag:false, txLabel:'Transaction ID (TXID)' },
+  };
+
+  let selectedMethod = null;
+  let uploadedFile = null;
+
+  function selectMethod(key, btn) {
+    selectedMethod = key;
+    document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    checkStep1();
+  }
+
+  function checkStep1() {
+    const amt = document.getElementById('amountInput').value;
+    const num = parseFloat(amt);
+    const hint = document.getElementById('amountHint');
+    hint.style.display = (amt && num < 1) ? 'block' : 'none';
+    document.getElementById('step1Btn').disabled = !(amt && num >= 1 && selectedMethod);
+  }
+
+  function goStep2() {
+    if (selectedMethod === 'card') {
+      window.open('https://buy.stripe.com/14AdRa0wJ4kUaH95EDcjS00','_blank');
+      showStep(3);
+      return;
+    }
+    const m = methods[selectedMethod];
+    const amt = document.getElementById('amountInput').value;
+
+    document.getElementById('step2Label').textContent = `send $${parseFloat(amt).toFixed(2)} via ${m.name}`;
+
+    const addrHtml = `
+      <div class="addr-box">
+        <div class="addr-label">${m.label}</div>
+        <div class="${m.isTag ? 'addr-tag' : 'addr-val'}">${m.val}</div>
+        <button class="copy-btn" id="addrCopy" onclick="copyIt('${m.val}','addrCopy')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          copy ${m.isTag ? '$cashtag' : 'address'}
+        </button>
+      </div>`;
+    document.getElementById('step2Address').innerHTML = addrHtml;
+
+    // txid for crypto only, screenshot for cashapp only
+    const isCrypto = selectedMethod !== 'cash' && selectedMethod !== 'card';
+    document.getElementById('txidWrap').style.display = isCrypto ? 'block' : 'none';
+    document.getElementById('uploadWrap').style.display = selectedMethod === 'cash' ? 'block' : 'none';
+    document.getElementById('txidInput').value = '';
+    document.getElementById('fileName').style.display = '';
+    document.getElementById('fileName').textContent = '';
+    uploadedFile = null;
+    document.getElementById('step2Btn').disabled = true;
+
+    showStep(2);
+  }
+
+  function fileSelected(input) {
+    if (input.files && input.files[0]) {
+      uploadedFile = input.files[0];
+      const fn = document.getElementById('fileName');
+      fn.textContent = '✓ ' + uploadedFile.name;
+      fn.style.display = 'block';
+      checkStep2();
+    }
+  }
+
+  function checkStep2() {
+    const isCrypto = selectedMethod !== 'cash' && selectedMethod !== 'card';
+    const txid = document.getElementById('txidInput').value.trim();
+    if (isCrypto) {
+      document.getElementById('step2Btn').disabled = !txid;
+    } else {
+      document.getElementById('step2Btn').disabled = !uploadedFile;
+    }
+  }
+
+  function goStep3() { showStep(3); }
+
+  function goBack(n) { showStep(n); }
+
+  function restart() {
+    selectedMethod = null;
+    uploadedFile = null;
+    document.getElementById('amountInput').value = '';
+    document.getElementById('txidInput').value = '';
+    document.getElementById('fileName').style.display = '';
+    document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('selected'));
+    document.getElementById('step1Btn').disabled = true;
+    showStep(1);
+  }
+
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+    document.getElementById('step'+n).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function copyIt(val, btnId) {
+    navigator.clipboard.writeText(val).then(()=>{
+      const btn = document.getElementById(btnId);
+      const orig = btn.innerHTML;
+      btn.classList.add('copied');
+      const svg = btn.querySelector('svg').outerHTML;
+      btn.innerHTML = svg + ' copied ♡';
+      setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML=orig; }, 2200);
+    });
+  }
+
+</script>
+</body>
+</html>
