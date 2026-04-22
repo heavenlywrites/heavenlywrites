@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Planner ♥</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Hachi+Maru+Pop&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; background: #f7f6f3; font-family: 'DM Sans', sans-serif; color: #2d2d2d; }
+    input, textarea, select, button { font-family: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+
+    .btn { border-radius: 10px; padding: 9px 18px; font-size: 14px; font-weight: 700; transition: opacity .15s, transform .12s; }
+    .btn:hover { opacity: .85; transform: translateY(-1px); }
+    .btn:active { transform: scale(.97); }
+
+    .pill { padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; display: inline-block; }
+    label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #999; }
+
+    .input { border: 1.5px solid #e8e6e1; border-radius: 10px; padding: 10px 13px; font-size: 14px; background: #fafaf8; width: 100%; outline: none; transition: border .15s; }
+    .input:focus { border-color: #a8c5b5; background: white; }
+
+    .card { background: white; border-radius: 14px; padding: 16px 18px; border: 1.5px solid #eceae5; transition: box-shadow .15s; display: flex; align-items: flex-start; gap: 12px; }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
+    .card.done-card { opacity: .55; }
+
+    .check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #d4d0c8; background: white; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .15s; margin-top: 2px; }
+    .check.on { background: #a8c5b5; border-color: #a8c5b5; }
+    .check-mark { color: white; font-size: 12px; font-weight: 900; display: none; }
+    .check.on .check-mark { display: block; }
+
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+    .overlay.hidden { display: none; }
+    .modal { background: white; border-radius: 18px; padding: 28px; width: 100%; max-width: 460px; box-shadow: 0 12px 40px rgba(0,0,0,.12); display: flex; flex-direction: column; gap: 16px; }
+
+    .icon-btn { opacity: .4; font-size: 14px; transition: opacity .15s; padding: 2px 4px; }
+    .icon-btn:hover { opacity: .8; }
+
+    .tab-wrap { background: #f0ede8; border-radius: 12px; padding: 4px; display: inline-flex; gap: 2px; }
+    .tab { padding: 8px 20px; border-radius: 10px; font-size: 14px; font-weight: 700; border: 1.5px solid transparent; transition: all .15s; color: #aaa; }
+    .tab.on { background: white; border-color: #eceae5; box-shadow: 0 2px 8px rgba(0,0,0,.07); color: #2d2d2d; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .progress-wrap { margin-bottom: 20px; background: white; border-radius: 12px; padding: 14px 16px; border: 1.5px solid #eceae5; }
+    .progress-bar-bg { height: 6px; background: #f0ede8; border-radius: 99px; }
+    .progress-bar { height: 100%; background: #a8c5b5; border-radius: 99px; transition: width .4s ease; }
+    .empty-state { text-align: center; padding: 48px 0; color: #ccc; }
+    #list { display: flex; flex-direction: column; gap: 10px; }
+    .topic-text { font-weight: 700; font-size: 15px; margin-bottom: 6px; color: #2d2d2d; }
+    .topic-text.strikethrough { text-decoration: line-through; color: #bbb; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .note-text { margin-top: 7px; font-size: 13px; color: #bbb; line-height: 1.5; }
+    .card-actions { display: flex; gap: 2px; flex-shrink: 0; }
+
+    /* ── Lock screen ── */
+    #lock-screen {
+      position: fixed; inset: 0; background: #f7f6f3;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 20px;
+    }
+    #lock-screen.hidden { display: none; }
+    .lock-box {
+      background: white; border-radius: 20px; padding: 36px 28px;
+      width: 100%; max-width: 340px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.09);
+      display: flex; flex-direction: column; gap: 18px; align-items: center; text-align: center;
+    }
+    .lock-title { font-family: 'Hachi Maru Pop', cursive; font-size: 22px; }
+    .pin-row { display: flex; gap: 12px; justify-content: center; }
+    .pin-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid #d4d0c8; background: white; transition: all .15s;
+    }
+    .pin-dot.filled { background: #a8c5b5; border-color: #a8c5b5; }
+    .pin-dot.error  { background: #e8a0a0; border-color: #e8a0a0; }
+    .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 230px; }
+    .num-btn {
+      aspect-ratio: 1; border-radius: 12px; font-size: 18px; font-weight: 700;
+      background: #f7f6f3; color: #2d2d2d; border: 1.5px solid #eceae5;
+      transition: background .1s, transform .1s;
+    }
+    .num-btn:hover { background: #eceae5; }
+    .num-btn:active { transform: scale(.92); background: #e0dbd4; }
+    .num-btn.del { font-size: 15px; color: #bbb; }
+    .lock-error { color: #c47a7a; font-size: 13px; font-weight: 600; min-height: 18px; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #e0dbd4; border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Lock Screen ── -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <h2 class="lock-title" id="lock-title">Content Planner ♥</h2>
+    <div class="pin-row">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+    <div class="numpad">
+      <button class="num-btn" onclick="numPress('1')">1</button>
+      <button class="num-btn" onclick="numPress('2')">2</button>
+      <button class="num-btn" onclick="numPress('3')">3</button>
+      <button class="num-btn" onclick="numPress('4')">4</button>
+      <button class="num-btn" onclick="numPress('5')">5</button>
+      <button class="num-btn" onclick="numPress('6')">6</button>
+      <button class="num-btn" onclick="numPress('7')">7</button>
+      <button class="num-btn" onclick="numPress('8')">8</button>
+      <button class="num-btn" onclick="numPress('9')">9</button>
+      <button class="num-btn" style="visibility:hidden"></button>
+      <button class="num-btn" onclick="numPress('0')">0</button>
+      <button class="num-btn del" onclick="numDelete()">⌫</button>
+    </div>
+    <p class="lock-error" id="lock-error"></p>
+  </div>
+</div>
+
+<!-- ── Main App ── -->
+<div id="app" style="display:none">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px">
+
+    <div style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <h1 style="font-family:'Hachi Maru Pop',cursive;font-size:26px;margin-bottom:4px">Content Planner ♥</h1>
+        <p style="color:#aaa;font-size:14px">brainstorm, plan, check off</p>
+      </div>
+      <button class="icon-btn" style="font-size:20px;opacity:.25" onclick="lockApp()" title="Lock">🔒</button>
+    </div>
+
+    <div class="tab-wrap" style="margin-bottom:24px">
+      <button class="tab on" id="tab-twitch" onclick="switchTab('twitch')">
+        🟣 Twitch <span id="count-twitch" style="margin-left:6px;font-size:12px;font-weight:500;color:#a8c5b5">0</span>
+      </button>
+      <button class="tab" id="tab-youtube" onclick="switchTab('youtube')">
+        🔴 YouTube <span id="count-youtube" style="margin-left:6px;font-size:12px;font-weight:500;color:#bbb">0</span>
+      </button>
+    </div>
+
+    <div class="progress-wrap" id="progress-wrap" style="display:none">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#999;margin-bottom:8px">
+        <span id="progress-label">0 of 0 done</span>
+        <span id="progress-pct" style="color:#a8c5b5">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="btn" style="background:#2d2d2d;color:white;font-size:13px" onclick="openAdd()">+ add idea</button>
+    </div>
+
+    <div id="list"></div>
+  </div>
+</div>
+
+<!-- ── Add/Edit Modal ── -->
+<div class="overlay hidden" id="modal-overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 id="modal-title" style="font-family:'Hachi Maru Pop',cursive;font-size:18px">new idea ♥</h2>
+      <button class="icon-btn" style="font-size:18px" onclick="closeModal()">✕</button>
+    </div>
+    <div class="field">
+      <label>Topic</label>
+      <input class="input" id="f-topic" placeholder="e.g. chill minecraft night" onkeydown="if(event.key==='Enter')saveForm()" />
+    </div>
+    <div class="field">
+      <label>Collab with (optional)</label>
+      <input class="input" id="f-collab" placeholder="e.g. @friend" />
+    </div>
+    <div class="field">
+      <label>Duration</label>
+      <select class="input" id="f-duration">
+        <option>15 min</option><option>30 min</option><option>45 min</option>
+        <option selected>1 hr</option><option>1.5 hrs</option><option>2 hrs</option>
+        <option>3 hrs</option><option>3+ hrs</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Notes (optional)</label>
+      <textarea class="input" id="f-notes" rows="3" style="resize:vertical" placeholder="anything else..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" style="background:#f0ede8;color:#999" onclick="closeModal()">cancel</button>
+      <button class="btn" id="save-btn" style="background:#2d2d2d;color:white" onclick="saveForm()">add idea</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const IDEAS_KEY = 'cp_ideas_v1';
+  const PASSKEY   = '5211';
+
+  let ideas     = [];
+  let tab       = 'twitch';
+  let editId    = null;
+  let pinBuffer = '';
+
+  // ── Persist ideas ──────────────────────────────────────────────────
+  function loadIdeas() {
+    try { return JSON.parse(localStorage.getItem(IDEAS_KEY)) || []; } catch { return []; }
+  }
+  function saveIdeas() {
+    localStorage.setItem(IDEAS_KEY, JSON.stringify(ideas));
+  }
+
+  // ── Lock screen ────────────────────────────────────────────────────
+  function initLock() {
+    pinBuffer = '';
+    updateDots();
+    clearError();
+  }
+
+  function numPress(d) {
+    if (pinBuffer.length >= 4) return;
+    pinBuffer += d;
+    updateDots();
+    if (pinBuffer.length === 4) setTimeout(handlePin, 130);
+  }
+
+  function numDelete() {
+    pinBuffer = pinBuffer.slice(0, -1);
+    updateDots();
+    clearError();
+  }
+
+  function updateDots(state) {
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('dot' + i);
+      dot.className = 'pin-dot';
+      if (state === 'error') dot.classList.add('error');
+      else if (i < pinBuffer.length) dot.classList.add('filled');
+    }
+  }
+
+  function clearError() { document.getElementById('lock-error').textContent = ''; }
+
+  function handlePin() {
+    if (pinBuffer === PASSKEY) {
+      unlock();
+    } else {
+      shakeError('Wrong passkey — try again');
+    }
+  }
+
+  function shakeError(msg) {
+    updateDots('error');
+    document.getElementById('lock-error').textContent = msg;
+    setTimeout(() => { pinBuffer = ''; updateDots(); clearError(); }, 900);
+  }
+
+  function unlock() {
+    ideas = loadIdeas();
+    document.getElementById('lock-screen').classList.add('hidden');
+    document.getElementById('app').style.display = 'block';
+    render();
+  }
+
+  function lockApp() {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('lock-screen').classList.remove('hidden');
+    initLock();
+  }
+
+  // keyboard on lock screen
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('lock-screen').classList.contains('hidden')) return;
+    if (e.key >= '0' && e.key <= '9') numPress(e.key);
+    if (e.key === 'Backspace') numDelete();
+  });
+
+  // ── App ────────────────────────────────────────────────────────────
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+
+  function switchTab(t) {
+    tab = t;
+    document.getElementById('tab-twitch').className  = 'tab' + (t === 'twitch'  ? ' on' : '');
+    document.getElementById('tab-youtube').className = 'tab' + (t === 'youtube' ? ' on' : '');
+    document.getElementById('count-twitch').style.color  = t === 'twitch'  ? '#a8c5b5' : '#bbb';
+    document.getElementById('count-youtube').style.color = t === 'youtube' ? '#a8c5b5' : '#bbb';
+    render();
+  }
+
+  function render() {
+    const list = ideas.filter(i => i.type === tab);
+    const done = list.filter(i => i.done).length;
+    const pct  = list.length ? Math.round((done / list.length) * 100) : 0;
+
+    document.getElementById('count-twitch').textContent  = ideas.filter(i => i.type === 'twitch').length;
+    document.getElementById('count-youtube').textContent = ideas.filter(i => i.type === 'youtube').length;
+
+    const pw = document.getElementById('progress-wrap');
+    if (list.length > 0) {
+      pw.style.display = 'block';
+      document.getElementById('progress-label').textContent = `${done} of ${list.length} done`;
+      document.getElementById('progress-pct').textContent   = `${pct}%`;
+      document.getElementById('progress-bar').style.width   = `${pct}%`;
+    } else {
+      pw.style.display = 'none';
+    }
+
+    const el = document.getElementById('list');
+    if (list.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div style="font-size:36px;margin-bottom:10px">☁️</div><p style="font-weight:600;font-size:14px">no ideas yet — add your first one!</p></div>`;
+      return;
+    }
+
+    el.innerHTML = list.map(idea => `
+      <div class="card ${idea.done ? 'done-card' : ''}">
+        <div class="check ${idea.done ? 'on' : ''}" onclick="toggleDone('${idea.id}')">
+          <span class="check-mark">✓</span>
+        </div>
+        <div style="flex:1;min-width:0">
+          <p class="topic-text ${idea.done ? 'strikethrough' : ''}">${esc(idea.topic)}</p>
+          <div class="tags">
+            ${idea.collab ? `<span class="pill" style="background:#f5f0ff;color:#9b7fd4">👥 ${esc(idea.collab)}</span>` : ''}
+            <span class="pill" style="background:#f0ede8;color:#888">⏱ ${esc(idea.duration)}</span>
+            ${idea.done ? `<span class="pill" style="background:#edf7f2;color:#a8c5b5">done ✓</span>` : ''}
+          </div>
+          ${idea.notes ? `<p class="note-text">${esc(idea.notes)}</p>` : ''}
+        </div>
+        <div class="card-actions">
+          <button class="icon-btn" onclick="openEdit('${idea.id}')">✏️</button>
+          <button class="icon-btn" onclick="deleteIdea('${idea.id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function openAdd() {
+    editId = null;
+    set('modal-title', 'new idea ♥');
+    set('save-btn',    'add idea');
+    val('f-topic',    '');
+    val('f-collab',   '');
+    val('f-duration', '1 hr');
+    val('f-notes',    '');
+    document.getElementById('f-topic').placeholder = tab === 'twitch' ? 'e.g. chill minecraft night' : 'e.g. room tour video';
+    document.getElementById('modal-overlay').classList.remove('hidden');
+    setTimeout(() => document.getElementById('f-topic').focus(), 50);
+  }
+
+  function openEdit(id) {
+    const idea = ideas.find(i => i.id === id);
+    if (!idea) return;
+    editId = id;
+    set('modal-title', 'edit idea ♥');
+    set('save-btn',    'save');
+    val('f-topic',    idea.topic);
+    val('f-collab',   idea.collab   || '');
+    val('f-duration', idea.duration);
+    val('f-notes',    idea.notes    || '');
+    document.getElementById('modal-overlay').classList.remove('hidden');
+    setTimeout(() => document.getElementById('f-topic').focus(), 50);
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.add('hidden');
+    editId = null;
+  }
+
+  function overlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  function saveForm() {
+    const topic = document.getElementById('f-topic').value.trim();
+    if (!topic) return;
+    const data = {
+      topic,
+      collab:   document.getElementById('f-collab').value.trim(),
+      duration: document.getElementById('f-duration').value,
+      notes:    document.getElementById('f-notes').value.trim(),
+    };
+    if (editId) {
+      ideas = ideas.map(i => i.id === editId ? { ...i, ...data } : i);
+    } else {
+      ideas.push({ id: uid(), type: tab, done: false, ...data });
+    }
+    saveIdeas();
+    closeModal();
+    render();
+  }
+
+  function toggleDone(id) {
+    ideas = ideas.map(i => i.id === id ? { ...i, done: !i.done } : i);
+    saveIdeas();
+    render();
+  }
+
+  function deleteIdea(id) {
+    ideas = ideas.filter(i => i.id !== id);
+    saveIdeas();
+    render();
+  }
+
+  // helpers
+  function set(id, text) { document.getElementById(id).textContent = text; }
+  function val(id, v)    { document.getElementById(id).value = v; }
+
+  // ── Boot ────────────────────────────────────────────────────────────
+  initLock();
+</script>
+</body>
+</html>
