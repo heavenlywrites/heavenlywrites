@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pre-stream checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&family=Hachi+Maru+Pop&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    background: #fdf6ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 55% 45% at 15% 20%, #ffd6f0 0%, transparent 65%),
+      radial-gradient(ellipse 50% 50% at 85% 15%, #ddd6ff 0%, transparent 65%),
+      radial-gradient(ellipse 50% 45% at 50% 90%, #d6eeff 0%, transparent 65%),
+      radial-gradient(ellipse 40% 40% at 80% 75%, #ffecd6 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .page-title {
+    font-family: 'Hachi Maru Pop', cursive;
+    font-size: 1.5rem;
+    color: #4a3560;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .page-sub {
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #ffb8d4;
+    text-align: center;
+    margin-top: 0;
+  }
+
+  .card {
+    background: #fff8fe;
+    border: 1.5px solid rgba(210,190,240,.4);
+    border-radius: 24px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 20px rgba(200,150,220,.1);
+  }
+
+  .card-title {
+    font-family: 'Hachi Maru Pop', cursive;
+    font-size: .95rem;
+    color: #4a3560;
+    margin-bottom: 16px;
+  }
+
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .checklist li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .check-box {
+    width: 22px;
+    height: 22px;
+    border-radius: 8px;
+    border: 2px solid #f5b8d0;
+    background: #fff;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s cubic-bezier(.22,1,.36,1);
+  }
+
+  .check-box svg { opacity: 0; transition: opacity .2s; }
+
+  .checklist li.done .check-box {
+    background: #ffb8d4;
+    border-color: #ffb8d4;
+  }
+
+  .checklist li.done .check-box svg { opacity: 1; }
+
+  .check-label {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #7a6090;
+    transition: color .2s;
+    line-height: 1.4;
+  }
+
+  .checklist li.done .check-label {
+    color: #c9aee0;
+    text-decoration: line-through;
+    text-decoration-color: #e8c8f0;
+  }
+
+  .check-link {
+    font-size: .78rem;
+    font-weight: 800;
+    color: #c99de0;
+    text-decoration: none;
+  }
+  .check-link:hover { text-decoration: underline; }
+
+  .progress-bar {
+    height: 6px;
+    background: #f5e6ff;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffb8d4, #c99de0);
+    border-radius: 99px;
+    transition: width .4s cubic-bezier(.22,1,.36,1);
+    width: 0%;
+  }
+
+  .progress-text {
+    font-size: .62rem;
+    font-weight: 800;
+    color: #d0bce0;
+    text-align: right;
+    margin-top: 6px;
+    letter-spacing: .05em;
+  }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    background: #fff;
+    border: 1.5px solid rgba(210,190,240,.5);
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: .78rem;
+    font-weight: 600;
+    color: #4a3560;
+    resize: none;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  textarea:focus, input[type="text"]:focus {
+    border-color: #ffb8d4;
+  }
+
+  textarea::placeholder, input::placeholder {
+    color: #d0bce0;
+  }
+
+  .field-label {
+    font-size: .65rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #c9aee0;
+    margin-bottom: 6px;
+  }
+
+  .field-wrap { display: flex; flex-direction: column; gap: 4px; }
+
+  .submit-btn {
+    align-self: flex-end;
+    padding: 7px 20px;
+    border-radius: 50px;
+    background: #ffe4f0;
+    border: 1.5px solid #f5b8d0;
+    color: #e8a0bc;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: .72rem;
+    cursor: pointer;
+    transition: transform .15s cubic-bezier(.22,1,.36,1), box-shadow .15s;
+    margin-top: 10px;
+  }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,180,210,.3); }
+  .submit-btn:active { transform: translateY(1px); }
+
+  .result-block {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeIn .3s ease;
+  }
+
+  .result-block.show { display: flex; }
+
+  .result-title {
+    font-family: 'Hachi Maru Pop', cursive;
+    font-size: 1rem;
+    color: #4a3560;
+  }
+
+  .result-topic {
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #ffb8d4;
+  }
+
+  .result-summary {
+    font-size: .75rem;
+    font-weight: 600;
+    color: #7a6090;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .edit-btn {
+    align-self: flex-start;
+    font-size: .65rem;
+    font-weight: 800;
+    color: #c9aee0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    letter-spacing: .05em;
+    padding: 0;
+  }
+  .edit-btn:hover { color: #a07cc0; }
+
+  .goal-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .goal-field { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+  .goal-input-wrap {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid rgba(210,190,240,.5);
+    border-radius: 14px;
+    padding: 8px 14px;
+    gap: 6px;
+    transition: border-color .2s;
+  }
+
+  .goal-input-wrap:focus-within { border-color: #ffb8d4; }
+
+  .goal-input-wrap input {
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: .85rem;
+    font-weight: 800;
+    color: #4a3560;
+    width: 100%;
+    outline: none;
+  }
+
+  .goal-icon {
+    font-size: .75rem;
+    color: #d0bce0;
+    font-weight: 800;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .footer {
+    position: relative;
+    z-index: 1;
+    font-size: .65rem;
+    color: #d0bce0;
+    font-weight: 600;
+    letter-spacing: .1em;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
+    <div class="page-title">pre-stream checklist</div>
+  </div>
+
+  <!-- checklist -->
+  <div class="card">
+    <div class="card-title">before you go live ✓</div>
+    <ul class="checklist" id="checklist">
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">connect twitch bot &nbsp;<a class="check-link" href="https://heavenly.gg/twitchbot" target="_blank" onclick="event.stopPropagation()">heavenly.gg/twitchbot</a></span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">open and check OBS</span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">get water and a light snack</span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">bathroom break</span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">wipe desk</span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">discord call mic check</span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">twitch mic and camera check</span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">check no personal info is visible on screen</span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">discord left / stream right / game middle monitor</span>
+      </li>
+      <li onclick="toggle(this)">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L5 9.5L10 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>
+        <span class="check-label">get cozy ♡</span>
+      </li>
+    </ul>
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="progress-text" id="progress-text">0 / 10</div>
+  </div>
+
+  <!-- stream idea -->
+  <div class="card">
+    <div class="card-title">stream idea of the day</div>
+
+    <div id="idea-form" style="display:flex;flex-direction:column;gap:10px;">
+      <div class="field-wrap">
+        <div class="field-label">stream title</div>
+        <input type="text" id="idea-title" placeholder="e.g. cozy minecraft survival night">
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">topic / game</div>
+        <input type="text" id="idea-topic" placeholder="e.g. minecraft, just chatting, valo...">
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">describe the idea</div>
+        <textarea id="idea-summary" rows="3" placeholder="what's the vibe? any plans for the stream?"></textarea>
+      </div>
+      <button class="submit-btn" onclick="submitIdea()">save idea</button>
+    </div>
+
+    <div class="result-block" id="idea-result">
+      <div class="result-title" id="res-title"></div>
+      <div class="result-topic" id="res-topic"></div>
+      <div class="result-summary" id="res-summary"></div>
+      <button class="edit-btn" onclick="editIdea()">edit</button>
+    </div>
+  </div>
+
+  <!-- goals -->
+  <div class="card">
+    <div class="card-title">today's goals</div>
+    <div class="goal-row">
+      <div class="goal-field">
+        <div class="field-label">sub goal</div>
+        <div class="goal-input-wrap">
+          <span class="goal-icon">🎯</span>
+          <input type="text" placeholder="e.g. 50">
+        </div>
+      </div>
+      <div class="goal-field">
+        <div class="field-label">follower goal</div>
+        <div class="goal-input-wrap">
+          <span class="goal-icon">🎯</span>
+          <input type="text" placeholder="e.g. 200">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">heavenly.gg</div>
+
+<script>
+  function toggle(el) {
+    el.classList.toggle('done');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const items = document.querySelectorAll('#checklist li');
+    const done = document.querySelectorAll('#checklist li.done').length;
+    const pct = (done / items.length) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = done + ' / ' + items.length;
+  }
+
+  function submitIdea() {
+    const title = document.getElementById('idea-title').value.trim();
+    const topic = document.getElementById('idea-topic').value.trim();
+    const summary = document.getElementById('idea-summary').value.trim();
+    if (!title && !topic && !summary) return;
+    document.getElementById('res-title').textContent = title || 'untitled stream';
+    document.getElementById('res-topic').textContent = topic || '';
+    document.getElementById('res-summary').textContent = summary || '';
+    document.getElementById('idea-form').style.display = 'none';
+    document.getElementById('idea-result').classList.add('show');
+  }
+
+  function editIdea() {
+    document.getElementById('idea-form').style.display = 'flex';
+    document.getElementById('idea-result').classList.remove('show');
+  }
+</script>
+</body>
+</html>
