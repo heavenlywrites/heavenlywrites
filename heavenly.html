@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>heavenly</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Hachi+Maru+Pop&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    background: #fdf6ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 55% 45% at 15% 20%, #ffd6f0 0%, transparent 65%),
+      radial-gradient(ellipse 50% 50% at 85% 15%, #ddd6ff 0%, transparent 65%),
+      radial-gradient(ellipse 50% 45% at 50% 90%, #d6eeff 0%, transparent 65%),
+      radial-gradient(ellipse 40% 40% at 80% 75%, #ffecd6 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .avatar-wrap { position: relative; z-index: 1; }
+
+  .avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: #ffd6e8;
+    border: 4px solid #fff;
+    box-shadow: 0 6px 24px rgba(200,150,220,.22);
+    overflow: hidden;
+  }
+
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .badge {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ffb8d4;
+    border: 3px solid #fdf6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(145,71,255,.4);
+  }
+
+  .name {
+    position: relative;
+    z-index: 1;
+    font-family: 'Hachi Maru Pop', cursive;
+    font-size: 1.6rem;
+    color: #4a3560;
+    margin-top: -18px;
+  }
+
+  .role {
+    position: relative;
+    z-index: 1;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #ffb8d4;
+    margin-top: -20px;
+  }
+
+  .apply-btn {
+    position: relative;
+    z-index: 1;
+    margin-top: 8px;
+    padding: 7px 16px;
+    border-radius: 50px;
+    background: #ffe4f0;
+    border: 1.5px solid #f5b8d0;
+    color: #e8a0bc;
+    font-family: "Nunito", sans-serif;
+    font-weight: 800;
+    font-size: .72rem;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(255,180,210,.2);
+    transition: transform .15s cubic-bezier(.22,1,.36,1), box-shadow .15s;
+    display: inline-block;
+  }
+  .apply-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,180,210,.3); }
+  .apply-btn:active { transform: translateY(2px); box-shadow: 0 2px 8px rgba(255,180,210,.15); }
+
+  .icons {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    max-width: 260px;
+  }
+
+  .icon-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: #fff;
+    border: 1.5px solid rgba(210,190,240,.4);
+    box-shadow: 0 3px 14px rgba(180,150,220,.1);
+    transition: transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s;
+  }
+
+  .icon-btn:hover { transform: translateY(-4px) scale(1.06); box-shadow: 0 10px 28px var(--glow); }
+
+  .tw  { --glow: rgba(145,71,255,.22); }
+  .ig  { --glow: rgba(247,119,55,.20); }
+  .tt  { --glow: rgba(255,45,85,.18); }
+  .x   { --glow: rgba(100,100,140,.15); }
+  .yt  { --glow: rgba(255,68,68,.20); }
+  .dc  { --glow: rgba(88,101,242,.20); }
+
+  .footer {
+    position: relative;
+    z-index: 1;
+    font-size: .68rem;
+    color: #d0bce0;
+    font-weight: 600;
+    letter-spacing: .1em;
+    margin-top: -8px;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(200,170,230,.25);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal {
+    background: #fff8fe;
+    border: 1.5px solid rgba(210,190,240,.5);
+    border-radius: 28px;
+    padding: 14px 32px 20px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(200,150,220,.18);
+    position: relative;
+  }
+
+  .modal-cake { font-size: 2.4rem; margin-bottom: 4px; }
+
+  .modal-title {
+    font-family: 'Hachi Maru Pop', cursive;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #4a3560;
+    margin-bottom: 16px;
+  }
+
+  .modal-summary {
+    font-size: .7rem;
+    color: #b09cc0;
+    line-height: 1.9;
+    margin-bottom: 14px;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  .modal-coming {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    
+    font-size: .7rem;
+    color: #4a3560;
+    margin-bottom: 4px;
+  }
+
+  .modal-date {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    
+    font-size: .7rem;
+    color: #4a3560;
+    margin-bottom: 14px;
+  }
+
+  .modal-close {
+    padding: 8px 24px;
+    border-radius: 50px;
+    background: #ffe4f0;
+    border: 1.5px solid #f5b8d0;
+    color: #e8a0bc;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: .75rem;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .modal-close:hover { transform: translateY(-2px); }
+</style>
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIyIiBmaWxsPSIjZmRmNmZmIi8+CiAgPHRleHQgeD0iNTAiIHk9Ijc2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjcyIiBmaWxsPSIjZmZiOGQ0IiBmb250LWZhbWlseT0ic2VyaWYiPuKZoTwvdGV4dD4KPC9zdmc+" />
+</head>
+<body>
+
+  <div class="avatar-wrap">
+    <div class="avatar"><img src="pfp.jpg" alt="heavenly"></div>
+    <div class="badge" title="Twitch Partner">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="10" fill="#ffb8d4"/>
+        <path d="M5 10.5L8.5 14L15 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="name">heavenly</div>
+  <div class="role">Content Creator</div>
+  <div class="role">:3</div>
+
+  <div class="icons">
+    <a href="https://twitch.tv/obsessing" target="_blank" class="icon-btn tw" title="Twitch">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="#9147ff"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+    </a>
+    <a href="https://instagram.com/omiku" target="_blank" class="icon-btn ig" title="Instagram">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="url(#ig-grad)">
+        <defs><linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs>
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+      </svg>
+    </a>
+    <a href="https://tiktok.com/@ika" target="_blank" class="icon-btn tt" title="TikTok">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#010101"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.75a8.17 8.17 0 004.77 1.52V6.83a4.85 4.85 0 01-1-.14z"/></svg>
+    </a>
+    <a href="https://x.com/nmdx" target="_blank" class="icon-btn x" title="X">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="#3a3a5a"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="https://youtube.com/@obsessings" target="_blank" class="icon-btn yt" title="YouTube">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="#ff4444"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+    <a href="https://discord.gg/opp" target="_blank" class="icon-btn dc" title="Discord">
+      <svg width="27" height="27" viewBox="0 0 24 24" fill="#5865f2"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+    </a>
+  </div>
+
+  <div style="display:flex;gap:8px;">
+    <a href="https://heavenly.gg/apply" target="_blank" class="apply-btn">apply</a>
+    <a href="https://heavenly.gg/donate" target="_blank" class="apply-btn">donate</a>
+  </div>
+
+  <div class="footer">heavenly.gg</div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="modal-cake">🎂</div>
+      <div class="modal-title" style="font-size:1.1rem;margin-bottom:2px;">Introducing</div>
+      <div class="modal-title">Project 22</div>
+      <div class="modal-summary">
+        "Hey everyone! This November I'm starting something super special called Project 22. To kick it all off, I'll be doing a 24 hour birthday subathon on Twitch on November 23rd for my 22nd birthday. From then until December 23rd, I'm challenging myself to stream every single day for 1 to 8 hours a day. I also really wanna start taking YouTube seriously, so I'll be posting at least one video every week, plus a very special birthday video on my actual birthday. I'm super excited for this journey and I hope you guys will be there for the subathon and stay by my side through all of Project 22 ♡"<br>~ heavenly / @obsessing
+      </div>
+      <div class="modal-coming">Coming Soon</div>
+      <div class="modal-date">November 23, 2026</div>
+      <div class="modal-date" style="font-size:.7rem;margin-top:-10px;color:#4a3560;">12:00 AM EST &nbsp;/&nbsp; 11:00 PM CST &nbsp;/&nbsp; 9:00 PM PST</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <button class="modal-close" onclick="document.getElementById('overlay').style.display='none'">lets go</button>
+        <a class="modal-close" style="text-decoration:none;" target="_blank"
+          href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Project+22+Subathon+by+heavenly&dates=20261123T050000Z/20261124T050000Z&details=24+hour+subathon+kicking+off+Project+22!+Streaming+every+day+until+December+23rd.+twitch.tv/obsessing&sf=true">
+          add to calendar
+        </a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
